@@ -1,11 +1,14 @@
 var ESresults = [];
 
-var requestES = function(id){
+var requestES = function(ids){
   console.log('making request to ES');
 
   $.ajax({
-    type: 'GET',
-    url: //TODO: ES query url
+    type: 'POST',
+    url: "localhost:9200/couchpotato/_mget", //TODO: ES query url
+    data: {
+      "docs": ids
+    }
   }).done(function(data){
     console.log('This is the result: ', data);
     addResult(data);
@@ -15,14 +18,31 @@ var requestES = function(id){
 var handleSempreResponse = function(data){
   console.log('handling sempre response');
   //Take the result & get the ids out
-  var re = new RegExp('.*Top Value \{(.*)\}.*');
+  data = data.split("\n")
+  var re = new RegExp(/.*Top value.*\{(.*)\}.*/);
+  // var re = new RegExp(/.*Top value(.*)/);
+  // var re = new RegExp('(.*)');
   var names = re.exec(data);
+
+  names = names[1].split("   ");
+  re = new RegExp(/name ([0-9a-z]*)/);
+  var ids = [];
+  for (var i = 1; i < names.length; i++) {
+    var matches = re.exec(names[i]);
+    // ids.push(matches[1]); 
+    entry = {
+      _id: matches[1]
+    }
+    ids.push(entry);
+  }
+
+  // console.log(names[1])
   //make array of the results
-  var ids = result.split('(name ');
   //each will have a id); remove the ) when processing
-  ids.forEach(function(id){
-    requestES(id.replace(')', ''));
-  });
+  // ids.forEach(function(id){
+  //   requestES(ids);
+  // });
+  requestES(ids);
 }
 
 var addResult = function(entry){
