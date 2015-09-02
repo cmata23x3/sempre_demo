@@ -21,7 +21,6 @@ var requestES = function(ids){
 var handleSempreResponse = function(data){
   console.log('handling sempre response');
   // Figure out what which type of response we got
-  stringMatches = data.match(/\(string/) // ** Hacky way to check if the result has Strings that we want to display
 
   //Take the result & get the ids out
   data = data.split("\n");
@@ -31,15 +30,17 @@ var handleSempreResponse = function(data){
   // var re = new RegExp('(.*)');
   var names = re.exec(data);
   names = names[1].split("   ");
+  var stringMatches = names[1].match(/\(string/); // ** Hacky way to check if the result has Strings that we want to display
   console.log(names);
 
-  if(stringMatches == null){
+  if(!stringMatches){
     // Case that we're going to need to make some ES queries to get the rest of the data
     re = new RegExp(/name ([0-9a-z]*)/);
     var ids = [];
     for (var i = 1; i < names.length; i++) {
 
       var matches = re.exec(names[i]);
+
       // ids.push(matches[1]);
       if(matches){
         console.log(matches)
@@ -89,7 +90,11 @@ var addResult = function(entries){
     console.log('adding one entry to DOM ', entry);
     var img = '<img class="resultImg" src="' + entry._source.image.url + '" height="100" width="80">'
     var title = '<h3>'+entry._source.title+'</h3>'
-    var dom = '<p>' + img + '<br>' + title + '<br>' + entry + '</p><legend><br>';
+    var year = '<h4><i>Year: </i></h4><span>'+entry._source.year+'</span>';
+    var cast = '<h4><i>Cast: </i></h4><span>'+entry._source.cast+'</span>';
+    var directors = '<h4><i>Directors: </i></h4><span><'+entry._source.directors+'/span>';
+    var genres = '<h4><i>Genres: </i></h4><span>'+entry._source.genres+'</span>';
+    var dom = '<p>' + img + '<br>' + title + '<br>' + cast+ directors + genres + year + '</p><legend><br>';
     $('.resultsTable').append(dom);
   })
 }
